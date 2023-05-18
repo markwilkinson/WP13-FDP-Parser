@@ -7,6 +7,7 @@ class DCATCatalog < DCATResource
   #     title: nil, release_date: nil, modification_date: nil, publisher: nil, identifier: nil, license: nil  )
   def initialize(themeTaxonomy: nil, **args)
     super
+    warn "initialize"
     @datasets = []
     @themeTaxonomy = themeTaxonomy
     warn inspect

@@ -4,60 +4,68 @@ require './dataset.rb'
 require './distribution.rb'
 require './access_service.rb'
 require 'linkeddata'
-
-# ENV['FDPUSER']
-# ENV['FDPPASS'] 
-@fdp_server = ENV['FDP_SERVER'] || "http://localhost:7070"
-@baseURI = ENV['BASE_URI'] || "http://localhost:7070"
-
 VPQUERYABLE = "http://purl.org/ejp-rd/vocabulary/VPQueryable"
 VPDISCOVERABLE = "http://purl.org/ejp-rd/vocabulary/VPDiscoverable"
 
-@title = "EJP WP13 Data Services Catalog"  
-@description = "Catalog of tools and analytical services identified by WP13 as important to the EJP"
-@hasVersion = "1.0"
-@issued = Time.now.strftime('%Y-%m-%d')
-@modified = @issued
-@publisher = "https://www.ejprarediseases.org/"
-@creator = "https://www.ejprarediseases.org/"
-@creatorName = "Mark D Wilkinson"
-@parentURI = @fdp_server
 
-@catalog = createCatalog
+def main
+  # ENV['FDPUSER']
+  # ENV['FDPPASS'] 
+  warn "Starting"
+  @fdp_server = ENV['FDP_SERVER'] || "http://localhost:7070"
+  @baseURI = ENV['BASE_URI'] || "http://localhost:7070"
 
-services = ["https://pathvisio.org/", ]
-services.each do |service|
-  graph = RDF::Graph.load(service)
-  query = SPARQL.parse("select DISTINCT ?p ?o where {<#{service}> ?p ?o}")
-  r = query.execute(graph)
 
-  extractAnnotations(r)
-
-  # create dataset
+  @title = "EJP WP13 Data Services Catalog"  
+  @description = "Catalog of tools and analytical services identified by WP13 as important to the EJP"
   @hasVersion = "1.0"
-  @issued = Datetime()
-  @modified = Datetime()  
-  @parentURI = @catalog.identifier
-  @theme = VPDISCOVERABLE
-  @title = "Dataset for: #{otitle}"
-  @description = "The Dataset underlying the functionality of #{otitle}.  #{odescription}"
-  @dataset = createDataset
+  @issued = Time.now.strftime('%Y-%m-%d')
+  @modified = @issued
+  @publisher = "https://www.ejprarediseases.org/"
+  @creator = "https://www.ejprarediseases.org/"
+  @creatorName = "Mark D Wilkinson"
+  @parentURI = @fdp_server
+  warn "creating catalog"
+  @catalog = createCatalog
+  warn "done"
 
-  # create Distribution
-  @title = "Distribution of: #{otitle}"
-  @description = "The distribution of #{otitle} is made available through the data access services shown below.  #{odescription}"
-  @parentURI = @dataset.identifier
+  services = ["https://pathvisio.org/", ]
+  services.each do |service|
+    graph = RDF::Graph.load(service)
+    query = SPARQL.parse("select DISTINCT ?p ?o where {<#{service}> ?p ?o}")
+    r = query.execute(graph)
+    
+    warn "extracting annotations"
+    extractAnnotations(r)
 
-  # create accessService
-  @title = "Accessing: #{otitle}"
-  @description = "The access #{otitle} is made available through the access URL indicated."
-  @parentURI = @dataset.identifier
+    # create dataset
+    @hasVersion = "1.0"
+    @issued = Datetime()
+    @modified = Datetime()  
+    @parentURI = @catalog.identifier
+    @theme = VPDISCOVERABLE
+    @title = "Dataset for: #{otitle}"
+    @description = "The Dataset underlying the functionality of #{otitle}.  #{odescription}"
+    warn "create dataset"
+    @dataset = createDataset
+
+    # create Distribution
+    @title = "Distribution of: #{otitle}"
+    @description = "The distribution of #{otitle} is made available through the data access services shown below.  #{odescription}"
+    @parentURI = @dataset.identifier
+    @distribution = createDistribution
+
+    # create accessService
+    @title = "Accessing: #{otitle}"
+    @description = "The access #{otitle} is made available through the access URL indicated."
+    @parentURI = @distribution.identifier
 
 
 
-  # dataset.distribution= distribution.identifier.to_s
-  dataset.write_dataset
+    # dataset.distribution= distribution.identifier.to_s
+    # dataset.write_dataset
 
+  end
 end
 
 def extractAnnotations(r:)
@@ -175,8 +183,11 @@ def createDataService
   )
   @distribution.dataService= @ds.identifier.to_s
   @distribution.write_distribution
+  @ds.write_accessService
 end
 
-catalog.publish
-dataset.publish
+main
+
+# catalog.publish
+# dataset.publish
 # distribution.publish

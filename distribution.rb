@@ -25,7 +25,7 @@ class DCATDistribution < DCATResource
           dct:hasVersion "1.0" ;
           dct:publisher [ a foaf:Agent ; foaf:name "Example User" ] ;=#{" "}
           dct:isPartOf <#{parentURI}> ;
-          dcat:mediaType "application/sparql-results+json" .
+          dcat:mediaType "text/plain" .
 END
 
     warn "#{serverURL}/distribution"

@@ -135,7 +135,7 @@ class DCATResource
     if creator
       g << [identifier, RDF::Vocab::DC.creator, RDF::URI.new(creator)]
       g << [RDF::URI.new(creator), RDF.type, FOAF.Agent]
-      g << [RDF::URI.new(creator), FOAF.name, creatorName]
+      g << [RDF::URI.new(creator), FOAF.name, creatorName] if creatorName
     end
 
     # accessRights
