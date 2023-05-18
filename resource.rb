@@ -6,7 +6,7 @@ FOAF = RDF::Vocabulary.new("http://xmlns.com/foaf/0.1/")
 BS = RDF::Vocabulary.new("http://rdf.biosemantics.org/ontologies/fdp-o#")
 
 class DCATResource
-  attr_accessor :baseURI, :parentURI, :serverURL, :accessRights, accessService
+  attr_accessor :baseURI, :parentURI, :serverURL, :accessRights,
   :conformsTo, :contactName, :contactEmail, :creator, 
   :creatorName, :title, :description, :issued, :modified, 
   :hasVersion, :publisher, :identifier, :license, :language, 

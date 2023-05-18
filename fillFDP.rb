@@ -3,7 +3,6 @@ require './catalog.rb'
 require './dataset.rb'
 require './distribution.rb'
 require './access_service.rb'
-require 'esv'
 require 'linkeddata'
 
 # ENV['FDPUSER']
