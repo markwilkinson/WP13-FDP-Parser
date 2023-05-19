@@ -1,17 +1,18 @@
-class DCATDataService < DCATDistribution
+class DCATDataService < DCATResource
     attr_accessor :endpointDescription, :endpointURL
     
-    def initialize(endpointDescription: nil, endpointURL: nil, **args )
+    def initialize(endpointDescription: nil, endpointURL: nil, parent_distribution:,  **args )
         @endpointDescription = endpointDescription
         @endpointURL = endpointURL
         super 
         $stderr.puts "Building Data Service"
         $stderr.puts self.endpointDescription, self.endpointURL, self.class
         
-        self.types = [DCAT.Resource, DCAT.DataService, DCAT.Distribution]
+        self.types = [DCAT.Resource, DCAT.DataService]
         init_accessService   # create record and get GUID
         build # make the RDF
         write_accessService
+        parent_distribution.accessServices << self
     end
 
     def init_accessService
@@ -23,13 +24,13 @@ class DCATDataService < DCATDistribution
         <> a dcat:accessService, dcat:Resource ;
             dct:title "test" ;
             dct:hasVersion "1.0" ;
-            dct:publisher [ a foaf:Agent ; foaf:name "Example User" ] ;=#{" "}
-            dct:isPartOf <#{parentURI}> .
+            dct:publisher [ a foaf:Agent ; foaf:name "Example User" ] ;
+            dct:isPartOf <#{@parentURI}> .
 END
 
-      warn "#{serverURL}/accessservice"
-      warn asinit
-      resp = RestClient.post("#{serverURL}/accessservice", asinit, $headers)
+      warn "#{serverURL}/dataservice"
+      warn "#{asinit}\n\n"
+      resp = RestClient.post("#{serverURL}/dataservice", asinit, $headers)
       aslocation = resp.headers[:location]
       puts "temporary distribution written to #{aslocation}\n\n"
       self.identifier = RDF::URI(aslocation)  # set identifier to where it lives

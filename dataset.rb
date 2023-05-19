@@ -1,7 +1,7 @@
 class DCATDataset < DCATResource
   attr_accessor :was_generated_by, :distribution, :theme, :landingPage, :distributions
 
-  def initialize(theme: nil, landingPage: nil, **args)
+  def initialize(theme: nil, landingPage: nil, parent_catalog:,  **args)
     super
     @theme = theme
     @landingPage = landingPage
@@ -12,6 +12,7 @@ class DCATDataset < DCATResource
     init_dataset   # create record and get GUID
     build # make the RDF
     write_dataset
+    parent_catalog.datasets << self
   end
 
   def init_dataset
@@ -25,12 +26,13 @@ class DCATDataset < DCATResource
           dct:hasVersion "1.0" ;
           dct:publisher [ a foaf:Agent ; foaf:name "Example User" ] ;
           dcat:theme <http://exampletheme.org/> ;
-          dct:isPartOf <#{parentURI}> .
+          dct:isPartOf <#{@parentURI}> .
     END
 
-    warn "#{serverURL}/dataset"
+    warn "#{@serverURL}/dataset"
+    warn "#{dsetinit}\n\n"
     warn dsetinit
-    resp = RestClient.post("#{serverURL}/dataset", dsetinit, $headers)
+    resp = RestClient.post("#{@serverURL}/dataset", dsetinit, $headers)
     dsetlocation = resp.headers[:location]
     puts "temporary dataset written to #{dsetlocation}\n\n"
     self.identifier = RDF::URI(dsetlocation)  # set identifier to where it lives
@@ -44,12 +46,9 @@ class DCATDataset < DCATResource
     warn dataset
     resp = RestClient.put(location, dataset, $headers)
     warn resp.headers.to_s
+
   end
 
-  def add_distribution(distribution:)
-    @distributions << distribution
-  end
-  
 
   # def datasets
   #   return $datasets

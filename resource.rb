@@ -79,7 +79,7 @@ class DCATResource
     g << [identifier, RDF::Vocab::DC.isPartOf, @parentURI] if @parentURI
 
     # DCAT
-    %w[keyword landingPage qualifiedRelation service themeTaxonomy].each do |f|
+    %w[keyword landingPage qualifiedRelation service themeTaxonomy endpointURL endpointDescription].each do |f|
       (pred, value) = get_pred_value(f, "DCAT")
       next unless pred and value
 
@@ -188,15 +188,15 @@ class DCATResource
     # catalog dataset  distribution
     if is_a? DCATCatalog and !datasets.empty?
       datasets.each do |d|
-        g << [identifier, DCAT.dataset, RDF::URI.new(d)]
+        g << [identifier, DCAT.dataset, RDF::URI.new(d.identifier)]
       end
     elsif is_a? DCATDataset and !distributions.empty?
-      datasets.each do |d|
-        g << [identifier, DCAT.distribution, RDF::URI.new(d)]
+      distributions.each do |d|
+        g << [identifier, DCAT.distribution, RDF::URI.new(d.identifier)]
       end
     elsif is_a? DCATDistribution and !accessServices.empty?
       accessServices.each do |d|
-        g << [identifier, DCAT.accessService, RDF::URI.new(d)]
+        g << [identifier, DCAT.accessService, RDF::URI.new(d.identifier)]
       end
     end
 
@@ -222,11 +222,15 @@ class DCATResource
 
   def publish
     location = identifier.to_s.gsub(baseURI, serverURL)
-
-    resp = RestClient.put("#{location}/meta/state", '{ "current": "PUBLISHED" }',
+    begin
+      resp = RestClient.put("#{location}/meta/state", '{ "current": "PUBLISHED" }',
                           headers = { authorization: "Bearer #{$token}", content_type: "application/json" })
-    warn "piublish response message"
-    warn resp.inspect
+      warn "publish response message"
+      warn resp.inspect
+    rescue
+      warn "ERROR in publishing"
+    end
+
   end
 
   def get_pred_value(pred, vocab, datatype = nil)

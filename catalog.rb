@@ -28,10 +28,11 @@ class DCATCatalog < DCATResource
           dct:title "test" ;
           dct:hasVersion "1.0" ;
           dct:publisher [ a foaf:Agent ; foaf:name "Example User" ] ;
-          dct:isPartOf <#{parentURI}> .#{"            "}
+          dct:isPartOf <#{@parentURI}> .
 END
 
-    warn "#{serverURL}/catalog"
+    warn "#{serverURL}/catalog\n\n"
+    warn "#{catinit}\n\n"
     # $stderr.puts catinit
     resp = RestClient.post("#{serverURL}/catalog", catinit, $headers)
     catlocation = resp.headers[:location]

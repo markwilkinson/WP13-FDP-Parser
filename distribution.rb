@@ -1,17 +1,18 @@
 class DCATDistribution < DCATResource
-  attr_accessor :was_generated_by, :mediaType, :format, :accessServices
+  attr_accessor :mediaType, :format, :accessServices
 
-  def initialize(was_generated_by: nil, mediaType: nil, format: nil, **args)
-    @was_generated_by = was_generated_by
+  def initialize(mediaType: nil, format: nil, parent_dataset:,  **args)
     @accessServices = []
     @mediaType = mediaType
     @format = format
+    
     super
 
     self.types = [DCAT.Distribution, DCAT.Distribution]
     init_distribution   # create record and get GUID
     build # make the RDF
     write_distribution
+    parent_dataset.distributions << self
   end
 
   def init_distribution
@@ -23,14 +24,14 @@ class DCATDistribution < DCATResource
       <> a dcat:Distribution, dcat:Resource ;
           dct:title "test" ;
           dct:hasVersion "1.0" ;
-          dct:publisher [ a foaf:Agent ; foaf:name "Example User" ] ;=#{" "}
-          dct:isPartOf <#{parentURI}> ;
+          dct:publisher [ a foaf:Agent ; foaf:name "Example User" ] ;
+          dct:isPartOf <#{@parentURI}> ;
           dcat:mediaType "text/plain" .
 END
 
     warn "#{serverURL}/distribution"
-    warn distinit
-    resp = RestClient.post("#{serverURL}/distribution", distinit, $headers)
+    warn "#{distinit}\n\n"
+    resp = RestClient.post("#{@serverURL}/distribution", distinit, $headers)
     distlocation = resp.headers[:location]
     puts "temporary distribution written to #{distlocation}\n\n"
     self.identifier = RDF::URI(distlocation)  # set identifier to where it lives
@@ -38,7 +39,7 @@ END
 
   def write_distribution
     build
-    location = identifier.to_s.gsub(baseURI, serverURL)
+    location = identifier.to_s.gsub(@baseURI, @serverURL)
     warn "rewriting distribution to #{location}"
     distribution = serialize
     warn distribution
