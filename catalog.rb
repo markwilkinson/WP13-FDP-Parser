@@ -1,7 +1,7 @@
 class DCATCatalog < DCATResource
   attr_accessor :primaryTopic, :datasets, :themeTaxonomy
 
-  attr_accessor :datasets
+  attr_accessor :datasets, :accessServices
 
   # def initialize(primary_topic: nil, baseuri: "http://example.org", access_rights: nil, conforms_to: nil, contact_point: nil, resource_creator: nil,
   #     title: nil, release_date: nil, modification_date: nil, publisher: nil, identifier: nil, license: nil  )
@@ -9,6 +9,7 @@ class DCATCatalog < DCATResource
     super
     warn "initialize"
     @datasets = []
+    @accessServices = []
     @themeTaxonomy = themeTaxonomy
     warn inspect
     self.types = [DCAT.Catalog, DCAT.Resource]

@@ -1,7 +1,8 @@
 require 'rest-client'
 require 'json'
 
-@serverURL = "http://localhost:7070"
+#@serverURL = "http://localhost:7070"
+@serverURL = "https://wp13.fdps.ejprd.semlab-leiden.nl/"
 
 def set_headers
   return if $headers

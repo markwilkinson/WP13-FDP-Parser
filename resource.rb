@@ -62,6 +62,7 @@ class DCATResource
     puts ENV.fetch("FDPUSER", nil)
     puts ENV.fetch("FDPPASS", nil)
     payload = '{ "email": "' + ENV.fetch("FDPUSER", nil) + '", "password": "' + ENV.fetch("FDPPASS", nil) + '" }'
+    warn "#{serverURL}/tokens", payload
     resp = RestClient.post("#{serverURL}/tokens", payload, headers = { content_type: "application/json" })
     $token = JSON.parse(resp.body)["token"]
     puts $token
@@ -79,7 +80,7 @@ class DCATResource
     g << [identifier, RDF::Vocab::DC.isPartOf, @parentURI] if @parentURI
 
     # DCAT
-    %w[keyword landingPage qualifiedRelation service themeTaxonomy endpointURL endpointDescription].each do |f|
+    %w[keyword landingPage qualifiedRelation themeTaxonomy endpointURL endpointDescription].each do |f|
       (pred, value) = get_pred_value(f, "DCAT")
       next unless pred and value
 
@@ -146,6 +147,7 @@ class DCATResource
 
     # dataService
     if is_a? DCATDataService
+      warn self.inspect
       warn "serializing data service #{endpointDescription} or #{endpointURL}"
       if endpointDescription or endpointURL
         warn "serializing ENDPOINTS"
@@ -189,6 +191,10 @@ class DCATResource
     if is_a? DCATCatalog and !datasets.empty?
       datasets.each do |d|
         g << [identifier, DCAT.dataset, RDF::URI.new(d.identifier)]
+      end
+    elsif is_a? DCATCatalog and !accessServices.empty?
+      accessServices.each do |d|
+        g << [identifier, DCAT.service, RDF::URI.new(d.identifier)]
       end
     elsif is_a? DCATDataset and !distributions.empty?
       distributions.each do |d|

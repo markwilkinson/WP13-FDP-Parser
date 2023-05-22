@@ -1,18 +1,20 @@
 class DCATDataService < DCATResource
     attr_accessor :endpointDescription, :endpointURL
     
-    def initialize(endpointDescription: nil, endpointURL: nil, parent_distribution:,  **args )
-        @endpointDescription = endpointDescription
-        @endpointURL = endpointURL
-        super 
-        $stderr.puts "Building Data Service"
-        $stderr.puts self.endpointDescription, self.endpointURL, self.class
+    def initialize(endpointDescription: nil, endpointURL: nil, parent:,  **args )
+      super(**args)
+      @endpointDescription = endpointDescription
+      @endpointURL = endpointURL
         
-        self.types = [DCAT.Resource, DCAT.DataService]
-        init_accessService   # create record and get GUID
-        build # make the RDF
-        write_accessService
-        parent_distribution.accessServices << self
+      $stderr.puts "Building Data Service"
+      $stderr.puts self.endpointDescription, self.endpointURL, self.class
+      
+#      self.types = [DCAT.Resource, DCAT.DataService]
+      self.types = [DCAT.DataService]
+      init_accessService   # create record and get GUID
+      build # make the RDF
+      write_accessService
+      parent.accessServices << self
     end
 
     def init_accessService
@@ -21,16 +23,18 @@ class DCATDataService < DCATResource
         @prefix dcat: <http://www.w3.org/ns/dcat#> .
         @prefix dct: <http://purl.org/dc/terms/> .
         @prefix foaf: <http://xmlns.com/foaf/0.1/> .
-        <> a dcat:accessService, dcat:Resource ;
+        <> a dcat:DataService ;
+            foaf:name "test" ;
             dct:title "test" ;
             dct:hasVersion "1.0" ;
+            dcat:endpointURL <https://example.org> ;
             dct:publisher [ a foaf:Agent ; foaf:name "Example User" ] ;
             dct:isPartOf <#{@parentURI}> .
 END
 
-      warn "#{serverURL}/dataservice"
+      warn "#{serverURL}/dataService"
       warn "#{asinit}\n\n"
-      resp = RestClient.post("#{serverURL}/dataservice", asinit, $headers)
+      resp = RestClient.post("#{serverURL}/dataService", asinit, $headers)
       aslocation = resp.headers[:location]
       puts "temporary distribution written to #{aslocation}\n\n"
       self.identifier = RDF::URI(aslocation)  # set identifier to where it lives
