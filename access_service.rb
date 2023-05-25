@@ -6,11 +6,10 @@ class DCATDataService < DCATResource
       @endpointDescription = endpointDescription
       @endpointURL = endpointURL
         
-      $stderr.puts "Building Data Service"
-      $stderr.puts self.endpointDescription, self.endpointURL, self.class
+      warn "Building Data Service"
+      warn self.endpointDescription, self.endpointURL, self.class
       
-#      self.types = [DCAT.Resource, DCAT.DataService]
-      self.types = [DCAT.DataService]
+      self.types = [DCAT.Resource, DCAT.DataService]
       init_accessService   # create record and get GUID
       build # make the RDF
       write_accessService
@@ -33,7 +32,7 @@ class DCATDataService < DCATResource
 END
 
       warn "#{serverURL}/dataService"
-      warn "#{asinit}\n\n"
+      # warn "#{asinit}\n\n"
       resp = RestClient.post("#{serverURL}/dataService", asinit, $headers)
       aslocation = resp.headers[:location]
       puts "temporary distribution written to #{aslocation}\n\n"
@@ -45,7 +44,7 @@ END
       location = identifier.to_s.gsub(baseURI, serverURL)
       warn "rewriting access service to #{location}"
       ds = serialize
-      warn ds
+      # warn ds
       resp = RestClient.put(location, ds, $headers)
       warn resp.headers.to_s
     end

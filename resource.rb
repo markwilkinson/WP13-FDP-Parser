@@ -80,11 +80,22 @@ class DCATResource
     g << [identifier, RDF::Vocab::DC.isPartOf, @parentURI] if @parentURI
 
     # DCAT
-    %w[keyword landingPage qualifiedRelation themeTaxonomy endpointURL endpointDescription].each do |f|
+    %w[landingPage qualifiedRelation themeTaxonomy endpointURL endpointDescription].each do |f|
       (pred, value) = get_pred_value(f, "DCAT")
       next unless pred and value
 
       g << [identifier, pred, value]
+    end
+    # DCAT Multi-value
+    %w[keyword].each do |f|
+      (pred, value) = get_pred_value(f, "DCAT")  # value is a comma-separated string
+      next unless pred and value
+      keywords = value.split(",")
+      keywords.each do |kw|
+        kw.strip!
+        next if kw.empty?
+        g << [identifier, pred, kw]
+      end
     end
 
     # DCT

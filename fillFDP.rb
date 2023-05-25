@@ -16,6 +16,8 @@ def main
   warn "Starting"
   serverURL = ENV["FDP_SERVER"] || "http://localhost:7070"
   baseURI = ENV["BASE_URI"] || "http://localhost:7070"
+  serverURL = "http://localhost:7070"
+  baseURI = "http://localhost:7070"
 
   title = "EJP WP13 Catalog of Data Services"
   description = "Catalog of tools and analytical services identified by WP13 as important to the EJP"
@@ -52,17 +54,17 @@ def main
     warn "TRIPLES"
     warn graph.triples
 
-    options = process_url(url: site)
+    # options = process_url(url: site)
     # warn "select DISTINCT ?p ?o where {VALUES ?s {#{options}} ?s ?p ?o}"
     # query = SPARQL.parse("select DISTINCT ?p ?o where {VALUES ?s {#{options}} ?s ?p ?o}")
     query = SPARQL.parse("select DISTINCT ?p ?o where {?s ?p ?o}")
     r = query.execute(graph)
-    warn "RESULTS"
-    warn r.inspect
-    warn "extracting annotations"
+    # warn "RESULTS"
+    # warn r.inspect
+    # warn "extracting annotations"
 
-    applicationCategory ,title, landingPage, description, citation,
-    license, operatingSystem, keywords, title, endpointURL, 
+    _applicationCategory ,title, landingPage, description, citation,
+    license, _operatingSystem, keywords, title, endpointURL, 
     description, citation, license = extractAnnotations(r: r)
     if title.empty?
       warn "Could not find a title for #{site}"
@@ -76,7 +78,7 @@ def main
     # issued = DateTime.now.strftime("%Y-%m-%d")
     # modified = DateTime.now.strftime("%Y-%m-%d")
     # parentURI = catalog.identifier
-    # theme = [VPDISCOVERABLE]
+    # theme = "#{VPDISCOVERABLE}"
     # title = "Dataset for: #{@otitle}"
     # description = "The Dataset underlying the functionality of #{@otitle}.  #{@odescription}"
     # warn "create dataset"
@@ -152,6 +154,7 @@ def main
       publisher: publisher,
       creator: creator,
       creatorName: creatorName,
+      keyword: keywords,
 #      contactEmail: contactEmail,
 #      conformsTo: conformsTo,
       license: license,
@@ -173,16 +176,16 @@ def extractAnnotations(r:)
 
   title = r.map { |res| res[:o] if res[:p] == "http://schema.org/name" }
   title = title.compact.first.to_s
-  warn "title1 #{title}"
+  # warn "title1 #{title}"
   if title.empty?
     title = r.map { |res| res[:o] if res[:p] == "http://ogp.me/ns#title" }
     title = title.compact.first.to_s
-    warn "title2 #{title}"
+    # warn "title2 #{title}"
   end
   if title.empty?
     title = r.map { |res| res[:o] if res[:p] == "http://ogp.me/ns#site_name" }
     title = title.compact.first.to_s
-    warn "title3 #{title}"
+    # warn "title3 #{title}"
   end
   landingPage = r.map { |res| res[:o] if res[:p] == "http://schema.org/url" }
   landingPage = landingPage.compact.first.to_s
@@ -200,12 +203,15 @@ def extractAnnotations(r:)
   citation = r.map { |res| res[:o] if res[:p] == "http://schema.org/citation" }
   license = r.map { |res| res[:o] if res[:p] == "http://schema.org/license" }
   applicationCategory = r.map { |res| res[:o] if res[:p] == "http://schema.org/applicationCategory" }
+  # warn applicationCategory.inspect
   operatingSystem = r.map { |res| res[:o] if res[:p] == "http://schema.org/operatingSystem" }
-  keywords = [applicationCategory + operatingSystem] # TODO
+  # warn operatingSystem.inspect
   citation = citation.compact.first.to_s
   license = license.compact.first.to_s
-  applicationCategory = applicationCategory.compact.first.to_s
-  operatingSystem = operatingSystem.compact.first.to_s
+  applicationCategory = applicationCategory.compact.map(&:to_s)
+  operatingSystem = operatingSystem.compact.map(&:to_s)
+  keywords = applicationCategory.append(operatingSystem).join(",")
+  warn "KEYWORDS #{keywords}"
   return [applicationCategory ,title, landingPage, description, citation,
     license, operatingSystem, keywords, title, endpointURL, 
     description, citation, license]
@@ -231,11 +237,11 @@ def process_url(url:)
   end
   options << moreoptions
   options.flatten!
-  warn options.inspect
+  # warn options.inspect
   options.each do |o|
     options_string += "<#{o}> "
   end
-  warn options_string
+  # warn options_string
   options_string
 end
 

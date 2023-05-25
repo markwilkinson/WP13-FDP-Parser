@@ -7,11 +7,10 @@ class DCATCatalog < DCATResource
   #     title: nil, release_date: nil, modification_date: nil, publisher: nil, identifier: nil, license: nil  )
   def initialize(themeTaxonomy: nil, **args)
     super
-    warn "initialize"
+    # warn "initialize"
     @datasets = []
     @accessServices = []
     @themeTaxonomy = themeTaxonomy
-    warn inspect
     self.types = [DCAT.Catalog, DCAT.Resource]
     init_catalog # create record and get GUID
     build # make the RDF
@@ -33,11 +32,11 @@ class DCATCatalog < DCATResource
 END
 
     warn "#{serverURL}/catalog\n\n"
-    warn "#{catinit}\n\n"
+    # warn "#{catinit}\n\n"
     # $stderr.puts catinit
     resp = RestClient.post("#{serverURL}/catalog", catinit, $headers)
     catlocation = resp.headers[:location]
-    puts "temporary catalog written to #{catlocation}\n\n"
+    warn "temporary catalog written to #{catlocation}\n\n"
     self.identifier = RDF::URI(catlocation)  # set identifier to where it lives
   end
 
@@ -46,7 +45,7 @@ END
     location = identifier.to_s.gsub(baseURI, serverURL)
     warn "rewriting cat to #{location}"
     catalog = serialize
-    warn catalog
+    # warn catalog
     resp = RestClient.put(location, catalog, $headers)
     warn resp.headers.to_s
   end

@@ -8,7 +8,7 @@ class DCATDistribution < DCATResource
     
     super
 
-    self.types = [DCAT.Distribution, DCAT.Distribution]
+    self.types = [DCAT.Resource, DCAT.Distribution]
     init_distribution   # create record and get GUID
     build # make the RDF
     write_distribution
