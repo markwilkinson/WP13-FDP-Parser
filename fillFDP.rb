@@ -4,8 +4,8 @@ require "./dataset"
 require "./distribution"
 require "./access_service"
 require "linkeddata"
-VPQUERYABLE = "http://purl.org/ejp-rd/vocabulary/VPQueryable"
-VPDISCOVERABLE = "http://purl.org/ejp-rd/vocabulary/VPDiscoverable"
+VPQUERYABLE = "https://w3id.org/ejp-rd/vocabulary#VPQueryable"
+VPDISCOVERABLE = "https://w3id.org/ejp-rd/vocabulary#VPDiscoverable"
 SITES = %w[https://bridgedb.org/ https://graphviz.org https://www.bridgedb.org/pages/webservice.html
            http://bioconductor.org/packages/release/bioc/html/BridgeDbR.html
            https://anaconda.org/bioconda/orsum https://pypi.org/project/ODAMNet/
